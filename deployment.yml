@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: braintask-deployment
+  labels:
+    app: braintask
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: braintask
+  template:
+    metadata:
+      labels:
+        app: braintask
+    spec:
+      containers:
+      - name: braintask-container
+        image: 888577049776.dkr.ecr.ap-south-1.amazonaws.com/braintaskimage:latest
+        ports:
+        - containerPort: 80
