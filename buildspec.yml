@@ -1,18 +1,40 @@
 version: 0.2
+
 phases:
+  install:
+    runtime-versions:
+      docker: 20
+      nodejs: 18
     commands:
       - echo Installing dependencies...
       - npm install
+
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 888577049776.dkr.ecr.ap-south-1.amazonaws.com
+
   build:
     commands:
-      - echo Building Docker image...
+      - echo Building the Docker image...
       - docker build -t braintaskimage .
       - docker tag braintaskimage:latest 888577049776.dkr.ecr.ap-south-1.amazonaws.com/braintaskimage:latest
+
   post_build:
     commands:
-      - echo Pushing Docker image...
+      - echo Pushing the Docker image...
       - docker push 888577049776.dkr.ecr.ap-south-1.amazonaws.com/braintaskimage:latest
+      - echo Writing image definitions...
+      - |
+        cat <<EOF > imagedefinitions.json
+        [
+          {
+            "name": "braintaskimage",
+            "imageUri": "888577049776.dkr.ecr.ap-south-1.amazonaws.com/braintaskimage:latest"
+          }
+        ]
+        EOF
+
+artifacts:
+  files:
+    - imagedefinitions.json
